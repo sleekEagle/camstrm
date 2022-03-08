@@ -18,5 +18,11 @@ assuming it is 9600,
 7. goto the project dir
 8. make sure the path is correct (to store the video) 
 9. execute the python script
-	python3 write_vid.py 
+	python3 write_vid.py
+
+## tips
+you can use scrcpy program from https://github.com/Genymobile/scrcpy
+to mirror screen of an Android device to the computer, so you do not have to look at the 
+device screen while you are working. 
+ 
 
