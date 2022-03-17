@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Mon Nov  1 15:51:50 2021
+Created on Thu Mar 17 16:52:19 2022
 
 @author: sleekeagle
 """
+
 import socket
 from PIL import Image
 import cv2
@@ -56,41 +57,3 @@ def get_next_image(s):
         return -1
         
     return img_ar,seq
-    
-
-    
-now = datetime.now()
-dt_string = now.strftime("%d-%m-%Y-%H-%M-%S")
-s=connect()
-
-p = struct.pack('!i', 23)
-s.send(p)
-
-image=-1
-while(type(image)!=tuple):
-    try:
-        image=get_next_image(s)
-        height,width,layers=image[0].shape
-        #fourcc = cv2.VideoWriter_fourcc(*'mp4v') 
-        fourcc = cv2.VideoWriter_fourcc('M','J','P','G')
-        video = cv2.VideoWriter('/home/sleekeagle/vuzix/data/'+dt_string+'.avi', fourcc, 30, (width, height))
-    except:
-        print('exception')
-
-while(True):
-    try:
-        image=get_next_image(s)  
-        if(type(image)==tuple):
-            RGB_img = cv2.cvtColor(image[0], cv2.COLOR_BGR2RGB)
-            video.write(RGB_img)
-            cv2.imshow('frame',RGB_img)
-            if (cv2.waitKey(1) & 0xFF == ord('q')):
-                break
-            #cv2.imwrite('/home/sleekeagle/vuzix/data/img.jpg', image[0])
-            print(image[0].shape)
-    except:
-        print("exception..")
-print("done")  
-
-video.release() 
-cv2.destroyAllWindows()

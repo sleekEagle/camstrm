@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
 
             // camera apis expect the cameraId to be a string
             // from testing, regular lens = 0, wide angle = 1
-            String idString = Integer.toString(0);
+            String idString = Integer.toString(1);
             cameraServiceIntent.putExtra("cameraId", idString);
             Log.i(TAG,"starting service...");
             startService(cameraServiceIntent);
