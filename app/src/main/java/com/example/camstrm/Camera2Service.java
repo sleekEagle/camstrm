@@ -166,7 +166,7 @@ public class Camera2Service extends Service {
                 return;
             }
             manager.openCamera(pickedCamera, cameraStateCallback, null);
-            imageReader = ImageReader.newInstance(820, 1052, ImageFormat.JPEG, 5 /* images buffered */);
+            imageReader = ImageReader.newInstance(410, 526, ImageFormat.JPEG, 5 /* images buffered */);
             imageReader.setOnImageAvailableListener(onImageAvailableListener, null);
             Log.d(TAG, "imageReader created");
         } catch (CameraAccessException e) {
@@ -239,7 +239,7 @@ public class Camera2Service extends Service {
 //            WindowManager windowManager = (WindowManager)getSystemService(WINDOW_SERVICE);
 //            int rotation = windowManager.getDefaultDisplay().getRotation();
 //            int jpegRotation = getJpegOrientation(camCharacteristics, rotation);
-            Range<Integer> fpsRange = new Range<>(30,40);
+            Range<Integer> fpsRange = new Range<>(5,10);
             builder.set(CaptureRequest.JPEG_ORIENTATION, 180); // hardcoding orientation for the tomy camera
             builder.set(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE,fpsRange);
             return builder.build();

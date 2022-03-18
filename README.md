@@ -25,4 +25,41 @@ you can use scrcpy program from https://github.com/Genymobile/scrcpy
 to mirror screen of an Android device to the computer, so you do not have to look at the 
 device screen while you are working. 
  
+## Running apps via ADB
+start the adb shell by 
+```
+adb shell
+```
+
+start the app by 
+```
+am start -n com.example.camstrm/com.example.camstrm.MainActivity
+``` 
+
+kill the app by 
+```
+am force-stop com.example.camstrm
+```
+
+
+## Running ADB via Wi-Fi instead of through USB cable
+on the computer type:
+```
+adb tcpip 5555
+adb shell ip addr show wlan0
+```
+and copy the IP address after the "inet" until the "/". 
+
+on the computer type:
+```
+adb connect ip-address-of-device:5555
+```
+
+You can disconnect the USB cable now
+use 
+```
+adb devices
+```
+to check if the device is still attached. 
+
 
