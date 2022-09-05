@@ -182,8 +182,17 @@ public class Camera2Service extends Service {
                               int startId) {
         String input = intent.getStringExtra("inputExtra");
         Intent notificationIntent = new Intent(this, MainActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this,
-                0, notificationIntent, 0);
+        PendingIntent pendingIntent = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+            pendingIntent = PendingIntent.getActivity
+                    (this, 0, notificationIntent, PendingIntent.FLAG_MUTABLE);
+        }
+        else
+        {
+            pendingIntent = PendingIntent.getActivity
+                    (this, 0, notificationIntent, PendingIntent.FLAG_ONE_SHOT);
+        }
+
         Notification notification = new NotificationCompat.Builder(this, MyApp.CHANNEL_ID)
                 .setContentTitle("Auto Start Service")
                 .setContentText(input)
