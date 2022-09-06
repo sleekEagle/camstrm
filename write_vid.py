@@ -13,6 +13,7 @@ import numpy as np
 import time
 from datetime import datetime
 import struct
+import os
 
 TCP_IP = '127.0.0.1'
 TCP_PORT = 9600
@@ -57,7 +58,25 @@ def get_next_image(s):
         
     return img_ar,seq
     
-
+#make sure the app is installed on the phone
+print("port forwarding....")
+ret=os.system("adb forward tcp:9600 tcp:9600")
+if(ret==-1):
+    print("port forwarding error. Exiting...")
+    quit()
+print("return value from OS = "+str(ret))
+#stopping the app (we need to restart)
+ret=os.system("adb shell am force-stop com.example.camstrm")
+if(ret==-1):
+    print("error when trying to stop the app. Exiting...")
+    quit()
+#start the app
+print("starting the camstream app...")
+ret=os.system("adb shell am start -n com.example.camstrm/com.example.camstrm.MainActivity")
+if(ret==-1):
+    print("Error when starting app with adb. Exiting...")
+    quit()
+print("return value from OS = "+str(ret))
     
 now = datetime.now()
 dt_string = now.strftime("%d-%m-%Y-%H-%M-%S")
