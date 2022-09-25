@@ -34,7 +34,13 @@ def connect():
     
 def get_next_image(s):
     try:
-        d_type=int.from_bytes(s.recv(1),"big")      
+        d_type=int.from_bytes(s.recv(1),"big")
+        print(d_type)
+        fdist=int.from_bytes(s.recv(1),"big")
+        print('fdist='+str(fdist))
+        tmp=int.from_bytes(s.recv(4),"big")
+        print('tmp='+str(tmp))
+        return -1
         if(d_type!=22):
             return -1
         seq=int.from_bytes(s.recv(4),"big")
@@ -72,7 +78,7 @@ if(ret==-1):
     quit()
 #start the app
 print("starting the camstream app...")
-ret=os.system("adb shell am start -n com.example.camstrm/com.example.camstrm.MainActivity")
+ret=os.system("adb shell am start -n com.example.camstrm/com.example.camstrm.MainActivity --es operation 2 --es camid 0")
 if(ret==-1):
     print("Error when starting app with adb. Exiting...")
     quit()
@@ -84,6 +90,10 @@ s=connect()
 
 p = struct.pack('!i', 23)
 s.send(p)
+
+#get_next_image(s)
+#quit()
+
 
 image=-1
 while(type(image)!=tuple):
@@ -98,7 +108,7 @@ while(type(image)!=tuple):
 
 while(True):
     try:
-        image=get_next_image(s)  
+        image=get_next_image(s)
         if(type(image)==tuple):
             RGB_img = cv2.cvtColor(image[0], cv2.COLOR_BGR2RGB)
             video.write(RGB_img)

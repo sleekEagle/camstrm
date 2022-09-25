@@ -17,13 +17,18 @@ public class MainActivity extends AppCompatActivity {
     private static final String[] CAMERA_PERMISSION = new String[]{Manifest.permission.CAMERA};
     private static final int CAMERA_REQUEST_CODE = 10;
     protected static final String TAG = "cam_stream";
+    protected static final String TAG1 = "cam_stream1";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         getWindow(). addFlags (WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        Log.i(TAG,"in main");
+        Log.i(TAG1,"in main");
+
+        String operation = getIntent().getStringExtra("operation");
+        String camid = getIntent().getStringExtra("camid");
 
         // start server that sends frames to computer over ADB
         Server server=new Server();
@@ -38,8 +43,17 @@ public class MainActivity extends AppCompatActivity {
 
             // camera apis expect the cameraId to be a string
             // from testing, regular lens = 0, wide angle = 1
-            String idString = Integer.toString(1);
-            cameraServiceIntent.putExtra("cameraId", idString);
+            String idString = Integer.toString(0);
+            /*
+            operation=2 : focal stacking mode
+            operation=0 :  video stream mode (autofocus)
+            operation=1 : capture a single image
+            * */
+            if(operation!=null) cameraServiceIntent.putExtra("operation", operation);
+            else cameraServiceIntent.putExtra("operation", "0");
+            if(camid!=null) cameraServiceIntent.putExtra("camid", camid);
+            else cameraServiceIntent.putExtra("camid", "0");
+
             Log.i(TAG,"starting service...");
             startService(cameraServiceIntent);
             //start service which access the camera and the stream of camera image frames

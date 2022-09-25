@@ -76,12 +76,15 @@ public class Server {
                         ImageData id=img_list.remove(0);
                         Log.i(TAG,"list size = " + String.valueOf(img_list.size()));
                         out.write(22);
-                        out.writeInt(id.seq);
-                        out.writeInt(id.height);
-                        out.writeInt(id.width);
-                        out.writeInt(id.byte_len);
-                        Log.i(TAG,String.valueOf(id.byte_len));
-                        out.write(id.data);
+                        //write focal dist if focal stacking
+                        out.write(44);
+                        out.writeInt(123);
+                        //out.writeInt(id.seq);
+                        //out.writeInt(id.height);
+                        //out.writeInt(id.width);
+                        //out.writeInt(id.byte_len);
+                        //Log.i(TAG,String.valueOf(id.byte_len));
+                        //out.write(id.data);
                         out.flush();
                         Log.i(TAG,"done writing");
                     } catch (IOException e) {
