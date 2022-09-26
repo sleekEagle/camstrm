@@ -14,9 +14,23 @@ import time
 from datetime import datetime
 import struct
 import os
+import sys
+import traceback
+import argparse
+
+parser = argparse.ArgumentParser(description='camstrm')
+parser.add_argument('--operation', type=int ,default=0, help='0:video stream 1: single image capture 2: focal stacking video')
+parser.add_argument('--camera', type=int ,default=0, help='camera ID')
+parser.add_argument('--savetype', type=int ,default=0, help='0:save as avi video file 1:save as images with timestamp')
+parser.add_argument('--savedir', type=str ,default='', help='save directory for the video')
+
+args = parser.parse_args()
 
 TCP_IP = '127.0.0.1'
 TCP_PORT = 9600
+
+seq_all=0
+dropped_imgs=0
 
 def connect():
     read_int=-1
@@ -33,14 +47,11 @@ def connect():
     
     
 def get_next_image(s):
+    global seq_all,dropped_imgs
     try:
         d_type=int.from_bytes(s.recv(1),"big")
-        print(d_type)
-        fdist=int.from_bytes(s.recv(1),"big")
-        print('fdist='+str(fdist))
-        tmp=int.from_bytes(s.recv(4),"big")
-        print('tmp='+str(tmp))
-        return -1
+        fdist=int.from_bytes(s.recv(4),"big")/100
+        print('fdist: '+str(fdist/100))
         if(d_type!=22):
             return -1
         seq=int.from_bytes(s.recv(4),"big")
@@ -59,10 +70,20 @@ def get_next_image(s):
             
         image = Image.open(io.BytesIO(img))
         img_ar=np.array(image)
+        if(seq_all==0):
+            seq_all=seq
+        elif(not(seq==(seq_all+1))):
+            dropped_imgs+=1
+        seq_all=seq
+
+
+
     except:
+        print(traceback.format_exc())
+        quit()
         return -1
         
-    return img_ar,seq
+    return img_ar,fdist
     
 #make sure the app is installed on the phone
 print("port forwarding....")
@@ -78,7 +99,7 @@ if(ret==-1):
     quit()
 #start the app
 print("starting the camstream app...")
-ret=os.system("adb shell am start -n com.example.camstrm/com.example.camstrm.MainActivity --es operation 2 --es camid 0")
+ret=os.system("adb shell am start -n com.example.camstrm/com.example.camstrm.MainActivity --es operation " +str(args.operation)+" --es camid " +str(args.camera))
 if(ret==-1):
     print("Error when starting app with adb. Exiting...")
     quit()
@@ -99,27 +120,38 @@ image=-1
 while(type(image)!=tuple):
     try:
         image=get_next_image(s)
-        height,width,layers=image[0].shape
-        #fourcc = cv2.VideoWriter_fourcc(*'mp4v') 
-        fourcc = cv2.VideoWriter_fourcc('M','J','P','G')
-        video = cv2.VideoWriter('/home/sleekeagle/vuzix/data/'+dt_string+'.avi', fourcc, 30, (width, height))
+        height,width,layers=image[0].shape 
+        if(args.savetype==0 or args.savetype==1):
+            if(not(os.path.exists(args.savedir))):
+                os.makedirs(args.savedir)
+        if(args.savetype==0):
+            fourcc = cv2.VideoWriter_fourcc('M','J','P','G')
+            video = cv2.VideoWriter(args.savedir + dt_string+'.avi', fourcc, 30, (width, height))
+        elif(args.savetype==1):
+            now_ = datetime.now()
+            dt_string_ = now.strftime("%d-%m-%Y-%H-%M-%S")
+            cv2.imwrite(args.savedir+str(now_)+'_'+str(image[1])+'.jpg', RGB_img)
     except:
-        print('exception')
+        print(traceback.format_exc())
 
 while(True):
     try:
         image=get_next_image(s)
         if(type(image)==tuple):
             RGB_img = cv2.cvtColor(image[0], cv2.COLOR_BGR2RGB)
-            video.write(RGB_img)
             cv2.imshow('frame',RGB_img)
+            if(args.savetype==0):  
+                video.write(RGB_img)
+            elif(args.savetype==1):
+                now_ = datetime.now()
+                dt_string_ = now.strftime("%d-%m-%Y-%H-%M-%S") 
+                cv2.imwrite(args.savedir+str(now_)+'_'+str(image[1])+'.jpg', RGB_img)
             if (cv2.waitKey(1) & 0xFF == ord('q')):
                 break
-            #cv2.imwrite('/home/sleekeagle/vuzix/data/img.jpg', image[0])
-            print(image[0].shape)
     except:
         print("exception..")
-print("done")  
-
-video.release() 
+print("done") 
+print('dropped images='+str(dropped_imgs))
+if(args.savetype==0):
+    video.release()
 cv2.destroyAllWindows()

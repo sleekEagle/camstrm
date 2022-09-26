@@ -76,7 +76,7 @@ public class Camera2Service extends Service {
         public void onOpened(@NonNull CameraDevice camera) {
             Log.d(TAG3, "CameraDevice.StateCallback onOpened camera = "+camera.getId());
             cameraDevice = camera;
-            imageReader = ImageReader.newInstance(10, 10, ImageFormat.JPEG, 1 /* images buffered */);
+            imageReader = ImageReader.newInstance(410, 526, ImageFormat.JPEG, 3 /* images buffered */);
             imageReader.setOnImageAvailableListener(onImageAvailableListener, null);
             try {
                 cameraDevice.createCaptureSession(Arrays.asList(imageReader.getSurface()), sessionStateCallback, null);
@@ -104,8 +104,8 @@ public class Camera2Service extends Service {
         public void onCaptureCompleted(CameraCaptureSession session, CaptureRequest request, TotalCaptureResult result){
             Log.d(TAG2,"capture completed");
             lenseState=result.get(CaptureResult.LENS_STATE);
+            fdist=result.get(CaptureResult.LENS_FOCUS_DISTANCE);
             if(operation.equals("2")){
-                fdist=result.get(CaptureResult.LENS_FOCUS_DISTANCE);
                 if(lenseState==CameraMetadata.LENS_STATE_STATIONARY) Log.d(TAG3,"fdist= "+String.valueOf(fdist));
             }
             else if(operation.equals("1")) closeCameraDevice();
@@ -125,7 +125,7 @@ public class Camera2Service extends Service {
                     for (Float fd : fDistList) {
                         CaptureRequest.Builder builder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE);
                         builder.addTarget(imageReader.getSurface());
-                        Range<Integer> fpsRange = new Range<>(minFPS, 30);
+                        Range<Integer> fpsRange = new Range<>(minFPS, maxFPS);
                         builder.set(CaptureRequest.JPEG_ORIENTATION, 180); // hardcoding orientation for the tomy camera
                         builder.set(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, fpsRange);
                         builder.set(CaptureRequest.CONTROL_AF_MODE, CameraMetadata.CONTROL_AF_MODE_OFF);
@@ -179,8 +179,8 @@ public class Camera2Service extends Service {
             byte[] bytes = new byte[buf.remaining()];
             buf.get(bytes);
 
-
-            if(Server.client!=null && Server.client.isBound() && Server.ready && lenseState==CameraMetadata.LENS_STATE_STATIONARY){
+//&& lenseState==CameraMetadata.LENS_STATE_STATIONARY
+            if(Server.client!=null && Server.client.isBound() && Server.ready ){
                 Log.d(TAG, "on image available ");
                 //Log.d(TAG, "not null");
                 if (img != null) {
@@ -189,7 +189,7 @@ public class Camera2Service extends Service {
                     //keep the buffer to a fixed max length
                     //encode images as objects of class ImageData
                     ImageData data=new ImageData(seq,img.getHeight(),img.getWidth(),bytes.length,fdist,bytes);
-                    if(Server.img_list.size() < 5){
+                    if(Server.img_list.size() < 100){
                         Log.d(TAG, "added image to list");
                         //add the ImageData object to a list in the class Server so that the server will send them
                         //through the TCP link over ADB to the computer
