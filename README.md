@@ -27,20 +27,18 @@ python write_vid.py -h
 Other options
 ```
 usage: write_vid.py [-h] [--operation OPERATION] [--camera CAMERA]
-                    [--display DISPLAY] [--savetype SAVETYPE]
-                    [--savedir SAVEDIR]
+                    [--savetype SAVETYPE] [--savedir SAVEDIR]
 
 camstrm
 
 optional arguments:
   -h, --help            show this help message and exit
   --operation OPERATION
-                        0: video stream 1: single image capture 2: focal
+                        0:video stream 1: single image capture 2: focal
                         stacking video
   --camera CAMERA       camera ID
-  --display DISPLAY     0: Do not display the image 1: Display the image
-  --savetype SAVETYPE   0: save as avi video file 1: save as images with
-                        timestamp and focal length 2: Do not save anything
+  --savetype SAVETYPE   0:save as avi video file 1:save as images with
+                        timestamp
   --savedir SAVEDIR     save directory for the video
 ```
 
@@ -48,9 +46,8 @@ To run in video streaming mode, with camera 0, save the video as an avi video fi
 ```
 python write_vid.py --operation 0 --camera 0 --savetype 0 --savedir /path/to/save/video/file/
 ```
-## To quit : 
-Press the key 'q' on the image display window.\
-If no display is used, press CTRL + Z 
+To quit : Press the key 'q' on the image display window.
+
 
 # tips
 you can use scrcpy program from https://github.com/Genymobile/scrcpy
