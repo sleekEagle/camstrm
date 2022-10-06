@@ -19,12 +19,17 @@ import traceback
 import argparse
 
 parser = argparse.ArgumentParser(description='camstrm')
-parser.add_argument('--operation', type=int ,default=0, help='0:video stream 1: single image capture 2: focal stacking video')
+parser.add_argument('--operation', type=int ,default=0, help='0: video stream 1: single image capture 2: focal stacking video')
 parser.add_argument('--camera', type=int ,default=0, help='camera ID')
-parser.add_argument('--savetype', type=int ,default=0, help='0:save as avi video file 1:save as images with timestamp')
+parser.add_argument('--display', type=int ,default=1, help='0: Do not display the image 1: Display the image')
+parser.add_argument('--savetype', type=int ,default=2, help='0: save as avi video file 1: save as images with timestamp and focal length 2: Do not save anything')
 parser.add_argument('--savedir', type=str ,default='', help='save directory for the video')
-
 args = parser.parse_args()
+
+if(args.savetype==0 or args.savetype==1):
+    if(args.savedir==''):
+        print('savedir cannot be empty if you want to save the data.')
+        quit()
 
 TCP_IP = '127.0.0.1'
 TCP_PORT = 9600
@@ -51,7 +56,7 @@ def get_next_image(s):
     try:
         d_type=int.from_bytes(s.recv(1),"big")
         fdist=int.from_bytes(s.recv(4),"big")/100
-        print('fdist: '+str(fdist/100))
+        #print('fdist: '+str(fdist/100))
         if(d_type!=22):
             return -1
         seq=int.from_bytes(s.recv(4),"big")
@@ -61,7 +66,7 @@ def get_next_image(s):
         if(size>1000000):
             return -1
         img=bytearray()
-        print(size)
+        print('received bytes : '+str(size))
         while(size>0):
             read_len=min(size,1024)
             data = s.recv(read_len)
@@ -80,7 +85,6 @@ def get_next_image(s):
 
     except:
         print(traceback.format_exc())
-        quit()
         return -1
         
     return img_ar,fdist
@@ -130,6 +134,7 @@ while(type(image)!=tuple):
         elif(args.savetype==1):
             now_ = datetime.now()
             dt_string_ = now.strftime("%d-%m-%Y-%H-%M-%S")
+            RGB_img_first = cv2.cvtColor(image[0], cv2.COLOR_BGR2RGB)
             cv2.imwrite(args.savedir+str(now_)+'_'+str(image[1])+'.jpg', RGB_img)
     except:
         print(traceback.format_exc())
@@ -139,19 +144,30 @@ while(True):
         image=get_next_image(s)
         if(type(image)==tuple):
             RGB_img = cv2.cvtColor(image[0], cv2.COLOR_BGR2RGB)
-            cv2.imshow('frame',RGB_img)
+            if(args.display==1):
+                cv2.imshow('frame',RGB_img)
             if(args.savetype==0):  
                 video.write(RGB_img)
             elif(args.savetype==1):
                 now_ = datetime.now()
                 dt_string_ = now.strftime("%d-%m-%Y-%H-%M-%S") 
+                print(args.savedir+str(now_)+'_'+str(image[1])+'.jpg')
                 cv2.imwrite(args.savedir+str(now_)+'_'+str(image[1])+'.jpg', RGB_img)
             if (cv2.waitKey(1) & 0xFF == ord('q')):
                 break
     except:
-        print("exception..")
+        print(traceback.format_exc())
+
 print("done") 
 print('dropped images='+str(dropped_imgs))
 if(args.savetype==0):
     video.release()
 cv2.destroyAllWindows()
+
+print("Stopping the camstream app...")
+ret=os.system("adb shell am force-stop  com.example.camstrm")
+if(ret==-1):
+    print("Error when stopping the app with adb. Exiting...")
+    quit()
+print("return value from OS = "+str(ret))
+
