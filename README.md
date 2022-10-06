@@ -46,6 +46,8 @@ To run in video streaming mode, with camera 0, save the video as an avi video fi
 ```
 python write_vid.py --operation 0 --camera 0 --savetype 0 --savedir /path/to/save/video/file/
 ```
+To quit : Press Esc on the image display window.
+
 
 # tips
 you can use scrcpy program from https://github.com/Genymobile/scrcpy
