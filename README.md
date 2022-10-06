@@ -6,25 +6,53 @@ this repo contain and Android app and a python3 script that runs on a computer.
 Android app access the camera of the Android device and sends image frames over TCP connection over ADB.
 pytho3 script access these images from the TCP port and display them and stores it as a video at the same time.
 
+## Dependencies
+1. Pillow 
+2. socket 
+3. openCV
+4. numpy
+
 ## how to use
 1. git clone https://github.com/sleekEagle/camstrm.git
 2. turn on the Android device
-3. establish connection over ADB (USB or WiFi)
-4. make sure the TCP port number on both the Android app and the python3 script are the same.
-assuming it is 9600,
-5. perform port forwarding with the command 
+3. Turn on developer options and USB debugging (also WiFi debugging if you are using it over WiFi) on the Android device
+4. establish connection over ADB (USB or WiFi)
+5. make sure the TCP port number on both the Android app and the python3 script are the same.
+
+## Options 
+Help 
 ```
-adb forward tcp:9600 tcp:9600
+python write_vid.py -h
 ```
-6. start the Android app first from the device
-7. goto the project dir
-8. make sure the path is correct (to store the video) 
-9. execute the python script
+Other options
 ```
-python3 write_vid.py
+usage: write_vid.py [-h] [--operation OPERATION] [--camera CAMERA]
+                    [--display DISPLAY] [--savetype SAVETYPE]
+                    [--savedir SAVEDIR]
+
+camstrm
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --operation OPERATION
+                        0: video stream 1: single image capture 2: focal
+                        stacking video
+  --camera CAMERA       camera ID
+  --display DISPLAY     0: Do not display the image 1: Display the image
+  --savetype SAVETYPE   0: save as avi video file 1: save as images with
+                        timestamp and focal length 2: Do not save anything
+  --savedir SAVEDIR     save directory for the video
 ```
 
-## tips
+To run in video streaming mode, with camera 0, save the video as an avi video file, in the path given in --savedir argument
+```
+python write_vid.py --operation 0 --camera 0 --savetype 0 --savedir /path/to/save/video/file/
+```
+## To quit : 
+Press the key 'q' on the image display window.\
+If no display is used, press CTRL + Z 
+
+# tips
 you can use scrcpy program from https://github.com/Genymobile/scrcpy
 to mirror screen of an Android device to the computer, so you do not have to look at the 
 device screen while you are working. 
