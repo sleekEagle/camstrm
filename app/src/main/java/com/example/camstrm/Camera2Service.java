@@ -189,7 +189,7 @@ public class Camera2Service extends Service {
                     //keep the buffer to a fixed max length
                     //encode images as objects of class ImageData
                     ImageData data=new ImageData(seq,img.getHeight(),img.getWidth(),bytes.length,fdist,bytes);
-                    if(Server.img_list.size() < 100){
+                    if(Server.img_list.size() < 2){
                         Log.d(TAG, "added image to list");
                         //add the ImageData object to a list in the class Server so that the server will send them
                         //through the TCP link over ADB to the computer
