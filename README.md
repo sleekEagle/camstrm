@@ -20,11 +20,11 @@ pytho3 script access these images from the TCP port and display them and stores 
 5. make sure the TCP port number on both the Android app and the python3 script are the same.
 
 ## Options 
-Help \
+Help 
 ```
 python write_vid.py -h
 ```
-Other options\
+Other options
 ```
 usage: write_vid.py [-h] [--operation OPERATION] [--camera CAMERA]
                     [--savetype SAVETYPE] [--savedir SAVEDIR]
@@ -47,7 +47,7 @@ To run in video streaming mode, with camera 0, save the video as an avi video fi
 python write_vid.py --operation 0 --camera 0 --savetype 0 --savedir /path/to/save/video/file/
 ```
 
-## tips
+# tips
 you can use scrcpy program from https://github.com/Genymobile/scrcpy
 to mirror screen of an Android device to the computer, so you do not have to look at the 
 device screen while you are working. 
