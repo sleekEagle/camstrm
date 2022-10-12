@@ -34,6 +34,13 @@ if(args.savetype==0 or args.savetype==1):
 TCP_IP = '127.0.0.1'
 TCP_PORT = 9600
 
+if(sys.platform=="win32"):
+    adbpath="C:\\Users\\lahir\\adb\\platform-tools_r33.0.3-windows\\platform-tools\\adb.exe"
+#if linux
+else:
+    adbpath="adb"
+
+
 seq_all=0
 dropped_imgs=0
 
@@ -91,19 +98,19 @@ def get_next_image(s):
     
 #make sure the app is installed on the phone
 print("port forwarding....")
-ret=os.system("adb forward tcp:9600 tcp:9600")
+ret=os.system(adbpath+" forward tcp:9600 tcp:9600")
 if(ret==-1):
     print("port forwarding error. Exiting...")
     quit()
 print("return value from OS = "+str(ret))
 #stopping the app (we need to restart)
-ret=os.system("adb shell am force-stop com.example.camstrm")
+ret=os.system(adbpath + " shell am force-stop com.example.camstrm")
 if(ret==-1):
     print("error when trying to stop the app. Exiting...")
     quit()
 #start the app
 print("starting the camstream app...")
-ret=os.system("adb shell am start -n com.example.camstrm/com.example.camstrm.MainActivity --es operation " +str(args.operation)+" --es camid " +str(args.camera))
+ret=os.system(adbpath+" shell am start -n com.example.camstrm/com.example.camstrm.MainActivity --es operation " +str(args.operation)+" --es camid " +str(args.camera))
 if(ret==-1):
     print("Error when starting app with adb. Exiting...")
     quit()
@@ -165,7 +172,7 @@ if(args.savetype==0):
 cv2.destroyAllWindows()
 
 print("Stopping the camstream app...")
-ret=os.system("adb shell am force-stop  com.example.camstrm")
+ret=os.system(adbpath+" shell am force-stop  com.example.camstrm")
 if(ret==-1):
     print("Error when stopping the app with adb. Exiting...")
     quit()
