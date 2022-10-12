@@ -22,6 +22,7 @@ parser = argparse.ArgumentParser(description='camstrm')
 parser.add_argument('--operation', type=int ,default=0, help='0: video stream 1: single image capture 2: focal stacking video')
 parser.add_argument('--camera', type=int ,default=0, help='camera ID')
 parser.add_argument('--display', type=int ,default=1, help='0: Do not display the image 1: Display the image')
+parser.add_argument('--dyn', type=int ,default=0, help='Shoud the camera wait till the lese is stationary ? (Android property CameraMetadata.LENS_STATE_STATIONARY)')
 parser.add_argument('--savetype', type=int ,default=2, help='0: save as avi video file 1: save as images with timestamp and focal length 2: Do not save anything')
 parser.add_argument('--savedir', type=str ,default='', help='save directory for the video')
 args = parser.parse_args()
@@ -110,7 +111,8 @@ if(ret==-1):
     quit()
 #start the app
 print("starting the camstream app...")
-ret=os.system(adbpath+" shell am start -n com.example.camstrm/com.example.camstrm.MainActivity --es operation " +str(args.operation)+" --es camid " +str(args.camera))
+ret=os.system(adbpath+" shell am start -n com.example.camstrm/com.example.camstrm.MainActivity --es operation " +str(args.operation)+" --es camid " +str(args.camera)
++" --es dynamiclense " +str(args.dyn))
 if(ret==-1):
     print("Error when starting app with adb. Exiting...")
     quit()

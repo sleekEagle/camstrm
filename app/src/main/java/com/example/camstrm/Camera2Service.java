@@ -62,12 +62,16 @@ public class Camera2Service extends Service {
     private static final int ID_SERVICE = 101;
     private static String camid;
     private static String operation;
+    private static String dynamiclense;
     private static int lenseState;
     private static float minFdist;
     private static float fdist;
     private static int minFPS=20;
     private static int maxFPS=30;
-    //desired f dists (in m) = [0.1,0.5,0.9,1.3,1.7]
+
+    private static boolean collectimages=false;
+    //desired f dists (in m) = [0.1,0.5,0.9,1.3,1.7] - DDFF dataset
+    // [0.1,.15,.3,0.7,1.5] - FoD dataset
     //the units are in diopters = 1/fDist
     private static List<Float> fDistList=Arrays.asList(10.0f,2.0f,1.1f,0.76f,0.58f);
 
@@ -180,7 +184,9 @@ public class Camera2Service extends Service {
             buf.get(bytes);
 
 //&& lenseState==CameraMetadata.LENS_STATE_STATIONARY
-            if(Server.client!=null && Server.client.isBound() && Server.ready ){
+            collectimages=Server.client!=null && Server.client.isBound() && Server.ready;
+            if(dynamiclense.equals("0")) collectimages = collectimages &&  (lenseState==CameraMetadata.LENS_STATE_STATIONARY);
+            if(collectimages){
                 Log.d(TAG, "on image available ");
                 //Log.d(TAG, "not null");
                 if (img != null) {
@@ -233,9 +239,12 @@ public class Camera2Service extends Service {
                               int startId) {
         operation = intent.getStringExtra("operation");
         camid = intent.getStringExtra("camid");
+        dynamiclense = intent.getStringExtra("dynamiclense");
         Log.d(TAG3,"here in start,,,,");
         Log.i(TAG1,"cam id: "+camid);
         Log.i(TAG1,"operation : "+operation);
+        Log.i(TAG1,"dynamiclense : "+dynamiclense);
+
         Intent notificationIntent = new Intent(this, MainActivity.class);
         PendingIntent pendingIntent = null;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
