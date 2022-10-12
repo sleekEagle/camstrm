@@ -49,6 +49,8 @@ public class Camera2Service extends Service {
     protected static final String TAG1 = "camera2Service_info";
     protected static final String TAG2 = "camera2Service_capture";
     protected static final String TAG3 = "singlecapture";
+    protected static final String TAG4 = "camera2Service_tag4";
+
 
     protected static final int CAMERACHOICE = CameraCharacteristics.LENS_FACING_FRONT;
     protected static long cameraCaptureStartTime;
@@ -183,11 +185,10 @@ public class Camera2Service extends Service {
             byte[] bytes = new byte[buf.remaining()];
             buf.get(bytes);
 
-//&& lenseState==CameraMetadata.LENS_STATE_STATIONARY
             collectimages=Server.client!=null && Server.client.isBound() && Server.ready;
             if(dynamiclense.equals("0")) collectimages = collectimages &&  (lenseState==CameraMetadata.LENS_STATE_STATIONARY);
             if(collectimages){
-                Log.d(TAG, "on image available ");
+                Log.d(TAG4, "on image available ");
                 //Log.d(TAG, "not null");
                 if (img != null) {
                     Server.seq+=1;
@@ -196,7 +197,7 @@ public class Camera2Service extends Service {
                     //encode images as objects of class ImageData
                     ImageData data=new ImageData(seq,img.getHeight(),img.getWidth(),bytes.length,fdist,bytes);
                     if(Server.img_list.size() < 100){
-                        Log.d(TAG, "added image to list");
+                        Log.d(TAG4, "added image to list");
                         //add the ImageData object to a list in the class Server so that the server will send them
                         //through the TCP link over ADB to the computer
                         Server.img_list.add(data);
