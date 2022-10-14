@@ -82,7 +82,7 @@ public class Camera2Service extends Service {
         public void onOpened(@NonNull CameraDevice camera) {
             Log.d(TAG3, "CameraDevice.StateCallback onOpened camera = "+camera.getId());
             cameraDevice = camera;
-            imageReader = ImageReader.newInstance(410, 526, ImageFormat.JPEG, 3 /* images buffered */);
+            imageReader = ImageReader.newInstance(300, 384, ImageFormat.JPEG, 3 /* images buffered */);
             imageReader.setOnImageAvailableListener(onImageAvailableListener, null);
             try {
                 cameraDevice.createCaptureSession(Arrays.asList(imageReader.getSurface()), sessionStateCallback, null);

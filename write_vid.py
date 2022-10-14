@@ -20,12 +20,12 @@ import argparse
 import time
 
 parser = argparse.ArgumentParser(description='camstrm')
-parser.add_argument('--operation', type=int ,default=2, help='0: video stream 1: single image capture 2: focal stacking video')
-parser.add_argument('--camera', type=int ,default=0, help='camera ID')
-parser.add_argument('--display', type=int ,default=0, help='0: Do not display the image 1: Display the image')
-parser.add_argument('--nimgs', type=int ,default=10, help='number of images to capture. -1 to capture until manually quit.')
-parser.add_argument('--dyn', type=int ,default=1, help='Shoud the camera not wait till the lese is stationary (a.k.a dynamic lense) ? (Android property CameraMetadata.LENS_STATE_STATIONARY)')
-parser.add_argument('--savetype', type=int ,default=2, help='0: save as avi video file 1: save as images with timestamp and focal length 2: Do not save anything')
+parser.add_argument('--operation', type=int ,default=0, help='0: video stream 1: single image capture 2: focal stacking video, defualt=0')
+parser.add_argument('--camera', type=int ,default=0, help='camera ID, default=0')
+parser.add_argument('--display', type=int ,default=0, help='0: Do not display the image 1: Display the image, default=0')
+parser.add_argument('--nimgs', type=int ,default=-1, help='number of images to capture. -1 to capture until manually quit. Default=-1')
+parser.add_argument('--dyn', type=int ,default=1, help='Shoud the camera not wait till the lese is stationary (a.k.a dynamic lense) ? (Android property CameraMetadata.LENS_STATE_STATIONARY),Default=1')
+parser.add_argument('--savetype', type=int ,default=2, help='0: save as avi video file 1: save as images with timestamp and focal length 2: Do not save anything, Default=2')
 parser.add_argument('--savedir', type=str ,default='', help='save directory for the video. In windows add two \s in the path')
 args = parser.parse_args()
 
