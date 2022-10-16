@@ -208,10 +208,16 @@ print("return value from OS = "+str(ret))
 outdir=args.savedir
 
 mkvfile=date_time+'.mkv'
-out = subprocess.run("C:\\Users\\lahir\\code\\CPRquality\\azurekinect\\stream\\stream.exe "+outdir+mkvfile+ " C:\\Users\\lahir\\CPRdata\\ 1", shell=True)
-out = subprocess.run("ffmpeg -i "+outdir+mkvfile+" -map 0:0  -vsync 0 "+outdir+date_time+"_kinect.png", shell=True)
+#out = subprocess.run("C:\\Users\\lahir\\code\\CPRquality\\azurekinect\\stream\\stream.exe C:\\Users\\lahir\\fstack_data\\vid.mkv"+" C:\\Users\\lahir\\fstack_data\\ 1", shell=True)
+
+#get a video with a single image from kinect
+out = subprocess.run("C:\\Users\\lahir\\code\\CPRquality\\azurekinect\\stream\\stream.exe "+outdir+mkvfile+ " "+outdir+" 1", shell=True)
+#extract the RGB image
+print('**********************')
+print("ffmpeg -i "+outdir+mkvfile+" -map 0:0 "+outdir+date_time+"_kinect.png")
+out = subprocess.run("ffmpeg -i "+outdir+mkvfile+"  -map 0:0 -frames:v 1 "+outdir+"kinect\\"+date_time+".png", shell=True)
 #resize image from phone
-out = subprocess.run("ffmpeg -i "+phoneimg+" -vf scale=1280:720 "+outdir+date_time+"_phone_resized.png", shell=True)
+out = subprocess.run("ffmpeg -i "+phoneimg+" -vf scale=1280:720 "+outdir+"phone\\"+date_time+"_resized.png", shell=True)
 
 
 
