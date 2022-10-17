@@ -30,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
         String operation = getIntent().getStringExtra("operation");
         String camid = getIntent().getStringExtra("camid");
         String dynamiclense = getIntent().getStringExtra("dynamiclense");
+        String manualf = getIntent().getStringExtra("manualf");
 
         // start server that sends frames to computer over ADB
         Server server=new Server();
@@ -56,6 +57,8 @@ public class MainActivity extends AppCompatActivity {
             else cameraServiceIntent.putExtra("camid", "0");
             if(dynamiclense!=null) cameraServiceIntent.putExtra("dynamiclense", dynamiclense);
             else cameraServiceIntent.putExtra("dynamiclense", "0");
+            if(manualf!=null) cameraServiceIntent.putExtra("manualf", manualf);
+            else cameraServiceIntent.putExtra("manualf", "0");
 
             Log.i(TAG,"starting service...");
             startService(cameraServiceIntent);

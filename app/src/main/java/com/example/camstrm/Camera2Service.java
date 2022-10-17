@@ -65,6 +65,7 @@ public class Camera2Service extends Service {
     private static String camid;
     private static String operation;
     private static String dynamiclense;
+    private static float manualf;
     private static int lenseState;
     private static float minFdist;
     private static float fdist;
@@ -146,6 +147,10 @@ public class Camera2Service extends Service {
                     Range<Integer> fpsRange = new Range<>(minFPS, maxFPS);
                     builder.set(CaptureRequest.JPEG_ORIENTATION, 180); // hardcoding orientation for the tomy camera
                     builder.set(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE,fpsRange);
+                    if(manualf>0){
+                        builder.set(CaptureRequest.CONTROL_AF_MODE, CameraMetadata.CONTROL_AF_MODE_OFF);
+                        builder.set(CaptureRequest.LENS_FOCUS_DISTANCE,manualf);
+                    }
                     session.setRepeatingRequest(builder.build(),capturecallback,null);
                 //if we just need a single photo
                 }else if(operation.equals("1")){
@@ -241,10 +246,12 @@ public class Camera2Service extends Service {
         operation = intent.getStringExtra("operation");
         camid = intent.getStringExtra("camid");
         dynamiclense = intent.getStringExtra("dynamiclense");
-        Log.d(TAG3,"here in start,,,,");
+        manualf =Float.parseFloat(intent.getStringExtra("manualf"));
+
         Log.i(TAG1,"cam id: "+camid);
         Log.i(TAG1,"operation : "+operation);
         Log.i(TAG1,"dynamiclense : "+dynamiclense);
+        Log.i(TAG1,"manualf : "+manualf);
 
         Intent notificationIntent = new Intent(this, MainActivity.class);
         PendingIntent pendingIntent = null;

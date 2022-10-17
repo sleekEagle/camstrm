@@ -27,6 +27,7 @@ parser.add_argument('--camera', type=int ,default=0, help='camera ID, default=0'
 parser.add_argument('--display', type=int ,default=0, help='0: Do not display the image 1: Display the image, default=0')
 parser.add_argument('--nimgs', type=int ,default=1, help='number of images to capture. -1 to capture until manually quit. Default=-1')
 parser.add_argument('--dyn', type=int ,default=0, help='Shoud the camera not wait till the lese is stationary (a.k.a dynamic lense) ? (Android property CameraMetadata.LENS_STATE_STATIONARY),Default=1')
+parser.add_argument('--manualf', type=float ,default=0, help='0 for autofocus, value in diopters for manual focus')
 parser.add_argument('--savetype', type=int ,default=1, help='0: save as avi video file 1: save as images with timestamp and focal length 2: Do not save anything, Default=2')
 parser.add_argument('--savedir', type=str ,default='', help='save directory for the video. In windows add two \s in the path')
 args = parser.parse_args()
@@ -117,7 +118,8 @@ if(ret==-1):
 #start the app
 print("starting the camstream app...")
 ret=os.system(adbpath+" shell am start -n com.example.camstrm/com.example.camstrm.MainActivity --es operation " +str(args.operation)+" --es camid " +str(args.camera)
-+" --es dynamiclense " +str(args.dyn))
++" --es dynamiclense " +str(args.dyn)
++" --es manualf " +str(args.manualf))
 if(ret==-1):
     print("Error when starting app with adb. Exiting...")
     quit()
@@ -208,16 +210,13 @@ print("return value from OS = "+str(ret))
 outdir=args.savedir
 
 mkvfile=date_time+'.mkv'
-#out = subprocess.run("C:\\Users\\lahir\\code\\CPRquality\\azurekinect\\stream\\stream.exe C:\\Users\\lahir\\fstack_data\\vid.mkv"+" C:\\Users\\lahir\\fstack_data\\ 1", shell=True)
-
 #get a video with a single image from kinect
 out = subprocess.run("C:\\Users\\lahir\\code\\CPRquality\\azurekinect\\stream\\stream.exe "+outdir+mkvfile+ " "+outdir+" 1", shell=True)
 #extract the RGB image
 print('**********************')
-print("ffmpeg -i "+outdir+mkvfile+" -map 0:0 "+outdir+date_time+"_kinect.png")
 out = subprocess.run("ffmpeg -i "+outdir+mkvfile+"  -map 0:0 -frames:v 1 "+outdir+"kinect\\"+date_time+".png", shell=True)
 #resize image from phone
-out = subprocess.run("ffmpeg -i "+phoneimg+" -vf scale=1280:720 "+outdir+"phone\\"+date_time+"_resized.png", shell=True)
+out = subprocess.run("ffmpeg -i "+phoneimg+" -vf crop=1280:720:0:0 "+outdir+"phone\\"+date_time+"_resized.png", shell=True)
 
 
 
