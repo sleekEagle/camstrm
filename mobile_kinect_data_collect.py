@@ -219,15 +219,14 @@ print("return value from OS = "+str(ret))
 
 #running azure kinect 
 #outdir="C:\\Users\\lahir\\fstack_data\\"
-outdir=args.savedir
-
 mkvfile=date_time+'.mkv'
 #get a video with a single image from kinect
-#out = subprocess.run("C:\\Users\\lahir\\code\\CPRquality\\azurekinect\\stream\\stream.exe "+outdir+mkvfile+ " "+outdir+" 1", shell=True)
+out = subprocess.run("C:\\Users\\lahir\\code\\CPRquality\\azurekinect\\stream\\stream.exe "+stackdir+'\\'+mkvfile+ " "+stackdir+'\\'+" 1", shell=True)
 #extract the RGB image
-#out = subprocess.run("ffmpeg -i "+outdir+mkvfile+"  -map 0:0 -frames:v 1 "+outdir+"kinect\\"+date_time+".png", shell=True)
+out = subprocess.run("ffmpeg -i "+stackdir+'\\'+mkvfile+"  -map 0:0 -frames:v 1 "+stackdir+'\\'+"kinect_"+date_time+".png", shell=True)
 #resize image from phone
 #out = subprocess.run("ffmpeg -i "+phoneimg+" -vf crop=1280:720:0:0 "+outdir+"data\\"+date_time+"_cropped.png", shell=True)
+out=subprocess.run("C:\\Users\\lahir\\code\\CPRquality\\azurekinect\\extractdata\\extractdata.exe " + stackdir+'\\'+mkvfile +" "+stackdir+'\\',shell=True)
 
 
 
