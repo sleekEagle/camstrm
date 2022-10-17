@@ -73,10 +73,10 @@ public class Camera2Service extends Service {
     private static int maxFPS=30;
 
     private static boolean collectimages=false;
-    //desired f dists (in m) = [0.1,0.5,0.9,1.3,1.7] - DDFF dataset
+    //desired f dists (in m) = [0.1,0.3,0.5,0.7,0.9,1.1,1.3,1.5,1.7,2.0] - DDFF dataset
     // [0.1,.15,.3,0.7,1.5] - FoD dataset
     //the units are in diopters = 1/fDist
-    private static List<Float> fDistList=Arrays.asList(10.0f,2.0f,1.1f,0.76f,0.58f);
+    private static List<Float> fDistList=Arrays.asList(10.0f,3.3f,2.0f,1.4f,1.1f,0.9f,0.76f,0.67f,0.58f,0.5f);
 
     protected CameraDevice.StateCallback cameraStateCallback = new CameraDevice.StateCallback() {
         @Override
