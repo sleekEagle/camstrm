@@ -34,8 +34,8 @@ camstrm
 optional arguments:
   -h, --help            show this help message and exit
   --operation OPERATION
-                        0:video stream 1: single image capture 2: focal
-                        stacking video
+                        0:video stream with auto focus 1: single image capture 2: focal
+                        stacking video 3: video stream with fixed focus
   --camera CAMERA       camera ID
   --savetype SAVETYPE   0:save as avi video file 1:save as images with
                         timestamp
