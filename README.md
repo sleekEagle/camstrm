@@ -15,9 +15,8 @@ pytho3 script access these images from the TCP port and display them and stores 
 ## how to use
 1. git clone https://github.com/sleekEagle/camstrm.git
 2. turn on the Android device
-3. Turn on developer options and USB debugging (also WiFi debugging if you are using it over WiFi) on the Android device
-4. establish connection over ADB (USB or WiFi)
-5. make sure the TCP port number on both the Android app and the python3 script are the same.
+3. turn on the camstrm app on the phone/android device
+4. use the IP address shown in the mobile phone on the python code 
 
 ## Options 
 Help 
@@ -40,6 +39,7 @@ optional arguments:
   --savetype SAVETYPE   0:save as avi video file 1:save as images with
                         timestamp
   --savedir SAVEDIR     save directory for the video
+  --ip                  IP address of the Android device
 ```
 
 To run in video streaming mode, with camera 0, save the video as an avi video file, in the path given in --savedir argument
