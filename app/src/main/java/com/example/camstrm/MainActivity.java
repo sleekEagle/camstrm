@@ -12,47 +12,71 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.TextView;
+
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.util.Enumeration;
 
 public class MainActivity extends AppCompatActivity {
     private static final String[] CAMERA_PERMISSION = new String[]{Manifest.permission.CAMERA};
     private static final int CAMERA_REQUEST_CODE = 10;
     protected static final String TAG = "cam_stream";
     protected static final String TAG1 = "cam_stream1";
+    private TextView myTextView;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        myTextView = (TextView)findViewById(R.id.myTextView);
+        //get WiFi address
+        String localIpAddress = getLocalIpAddress();
+        updateText(localIpAddress);
+
         getWindow(). addFlags (WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         Log.i(TAG1,"in main");
 
-        String operation = getIntent().getStringExtra("operation");
-        String camid = getIntent().getStringExtra("camid");
-        String dynamiclense = getIntent().getStringExtra("dynamiclense");
+//        String operation = getIntent().getStringExtra("operation");
+//        String camid = getIntent().getStringExtra("camid");
+//        String dynamiclense = getIntent().getStringExtra("dynamiclense");
 
         // start server that sends frames to computer over ADB
-        Server server=new Server();
-        server.startServer();
+        Server server=new Server(new Server.OptionsCallback(){
+            @Override
+            public void onTaskComplete(int operation,int camera) {
+                // Handle the result obtained from the thread here
+                Log.i(TAG1, "operation: " + operation);
+                Log.i(TAG1, "camera: " + camera);
+                start_camera(operation,camera);
+            }
+        });
+        server.start();
 
-        //chack of the user has given permission for this app to use camera
+    }
+
+    private void start_camera(int operation,int camid){
+        //check of the user has given permission for this app to use camera
         checkPermissionsOrRequest();
-
         if (hasCameraPermission()) {
             Intent cameraServiceIntent = new Intent(MainActivity.this, Camera2Service.class);
             Log.i(TAG,"starting cam..");
 
             // camera apis expect the cameraId to be a string
             // from testing, regular lens = 0, wide angle = 1
-            String idString = Integer.toString(0);
+//            String idString = Integer.toString(0);
             /*
             operation=2 : focal stacking mode
             operation=0 :  video stream mode (autofocus)
             operation=1 : capture a single image
             * */
-            if(operation!=null) cameraServiceIntent.putExtra("operation", operation);
+            String operation_str=String.valueOf(operation);
+            String camid_str=String.valueOf(camid);
+            String dynamiclense=String.valueOf(0);
+            if(operation_str!=null) cameraServiceIntent.putExtra("operation", operation_str);
             else cameraServiceIntent.putExtra("operation", "0");
-            if(camid!=null) cameraServiceIntent.putExtra("camid", camid);
+            if(camid_str!=null) cameraServiceIntent.putExtra("camid", camid_str);
             else cameraServiceIntent.putExtra("camid", "0");
             if(dynamiclense!=null) cameraServiceIntent.putExtra("dynamiclense", dynamiclense);
             else cameraServiceIntent.putExtra("dynamiclense", "0");
@@ -66,8 +90,6 @@ public class MainActivity extends AppCompatActivity {
             //if the user has not granted permission, request it
             requestPermission();
         }
-
-
 
     }
 
@@ -114,5 +136,40 @@ public class MainActivity extends AppCompatActivity {
                 CAMERA_PERMISSION,
                 CAMERA_REQUEST_CODE
         );
+    }
+
+    private void updateText(String newText) {
+        if (myTextView != null) {
+            myTextView.setText(newText);
+        }
+        else{
+            Log.i(TAG,"null pointer");
+        }
+
+    }
+
+    public static String getLocalIpAddress() {
+        try {
+            Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+            while (interfaces.hasMoreElements()) {
+                NetworkInterface iface = interfaces.nextElement();
+                // filters out 127.0.0.1 and inactive interfaces
+                if (iface.isLoopback() || !iface.isUp())
+                    continue;
+
+                Enumeration<InetAddress> addresses = iface.getInetAddresses();
+                while (addresses.hasMoreElements()) {
+                    InetAddress addr = addresses.nextElement();
+                    String ip = addr.getHostAddress();
+                    // Check if the IP address is in the IPv4 format
+                    if (ip.matches("\\d+(\\.\\d+){3}")) {
+                        return ip;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

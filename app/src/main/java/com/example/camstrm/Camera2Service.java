@@ -46,10 +46,14 @@ import androidx.core.app.NotificationCompat;
 public class Camera2Service extends Service {
     protected static final int CAMERA_CALIBRATION_DELAY = 5000;
     protected static final String TAG = "camera2Service";
-    protected static final String TAG1 = "camera2Service_info";
+    protected static final String TAG1 = "image_aval";
     protected static final String TAG2 = "camera2Service_capture";
-    protected static final String TAG3 = "singlecapture";
+    protected static final String TAG3 = "cameradetails";
     protected static final String TAG4 = "camera2Service_tag4";
+    protected static final String TAG5 = "camera2Service_tag5";
+
+    protected static final String TAG_READYCAM = "camera2Service_camready";
+
 
 
     protected static final int CAMERACHOICE = CameraCharacteristics.LENS_FACING_FRONT;
@@ -82,7 +86,7 @@ public class Camera2Service extends Service {
         public void onOpened(@NonNull CameraDevice camera) {
             Log.d(TAG3, "CameraDevice.StateCallback onOpened camera = "+camera.getId());
             cameraDevice = camera;
-            imageReader = ImageReader.newInstance(300, 384, ImageFormat.JPEG, 3 /* images buffered */);
+            imageReader = ImageReader.newInstance(1080, 1080, ImageFormat.JPEG, 3 /* images buffered */);
             imageReader.setOnImageAvailableListener(onImageAvailableListener, null);
             try {
                 cameraDevice.createCaptureSession(Arrays.asList(imageReader.getSurface()), sessionStateCallback, null);
@@ -119,10 +123,10 @@ public class Camera2Service extends Service {
     };
 
     protected CameraCaptureSession.StateCallback sessionStateCallback = new CameraCaptureSession.StateCallback() {
-
         @Override
         public void onReady(CameraCaptureSession session) {
-            Log.d(TAG3,"on ready");
+            Log.d(TAG4,"on ready");
+            Log.i(TAG4,"operation : "+operation);
             Camera2Service.this.session = session;
             try {
                 //if operation is focal stacking
@@ -147,9 +151,21 @@ public class Camera2Service extends Service {
                     builder.set(CaptureRequest.JPEG_ORIENTATION, 180); // hardcoding orientation for the tomy camera
                     builder.set(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE,fpsRange);
                     session.setRepeatingRequest(builder.build(),capturecallback,null);
+                }else if(operation.equals("3")){
+                    Log.d(TAG4,"fixed focus video streaming");
+                    CaptureRequest.Builder builder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE);
+                    builder.addTarget(imageReader.getSurface());
+                    Range<Integer> fpsRange = new Range<>(minFPS, maxFPS);
+                    builder.set(CaptureRequest.JPEG_ORIENTATION, 180); // hardcoding orientation for the tomy camera
+                    builder.set(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE,fpsRange);
+                    //turn off autofocus
+                    builder.set(CaptureRequest.CONTROL_AF_MODE, CameraMetadata.CONTROL_AF_MODE_OFF);
+                    //set focal distance to a value
+                    builder.set(CaptureRequest.LENS_FOCUS_DISTANCE,1.0f);
+                    session.setRepeatingRequest(builder.build(),capturecallback,null);
                 //if we just need a single photo
                 }else if(operation.equals("1")){
-                    Log.d(TAG3,"capturing image...");
+                    Log.d(TAG4,"capturing image...");
                     CaptureRequest.Builder builder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE);
                     builder.addTarget(imageReader.getSurface());
                     builder.set(CaptureRequest.JPEG_ORIENTATION, 180);
@@ -158,7 +174,7 @@ public class Camera2Service extends Service {
                 //session.capture(createCaptureRequest(), null, null);
                 cameraCaptureStartTime = System.currentTimeMillis();
             } catch (CameraAccessException e) {
-                Log.e(TAG, e.getMessage());
+                Log.e(TAG4, e.getMessage());
             }
         }
 
@@ -177,7 +193,7 @@ public class Camera2Service extends Service {
         //when images are available from camera they appear in this method
         @Override
         public void onImageAvailable(ImageReader reader) {
-            Log.i(TAG1, "on image available");
+            Log.i(TAG4, "on image available");
             //Timestamp timestamp = new Timestamp(System.currentTimeMillis());
             //Log.i(TAG,"displaying " + timestamp);
             Image img = reader.acquireLatestImage();
@@ -186,9 +202,10 @@ public class Camera2Service extends Service {
             buf.get(bytes);
 
             collectimages=Server.client!=null && Server.client.isBound() && Server.ready;
+            Log.d(TAG5, "collect before ");
             if(dynamiclense.equals("0")) collectimages = collectimages &&  (lenseState==CameraMetadata.LENS_STATE_STATIONARY);
             if(collectimages){
-                Log.d(TAG4, "on image available ");
+                Log.d(TAG5, "on image available ");
                 //Log.d(TAG, "not null");
                 if (img != null) {
                     Server.seq+=1;
@@ -202,6 +219,8 @@ public class Camera2Service extends Service {
                         //through the TCP link over ADB to the computer
                         Server.img_list.add(data);
                     }
+                }else{
+                    Log.d(TAG4, "image is null");
                 }
             }
             if (img != null) {
@@ -226,9 +245,9 @@ public class Camera2Service extends Service {
                 return;
             }
             manager.openCamera(cameraId, cameraStateCallback, null);
-            Log.d(TAG, "imageReader created");
+            Log.d(TAG_READYCAM, "imageReader created");
         } catch (CameraAccessException e) {
-            Log.e(TAG, e.getMessage());
+            Log.e(TAG_READYCAM, e.getMessage());
         }
     }
 
@@ -238,13 +257,14 @@ public class Camera2Service extends Service {
     public int onStartCommand(Intent intent,
                               int flags,
                               int startId) {
+        Log.i(TAG3,"on start command");
         operation = intent.getStringExtra("operation");
         camid = intent.getStringExtra("camid");
         dynamiclense = intent.getStringExtra("dynamiclense");
         Log.d(TAG3,"here in start,,,,");
-        Log.i(TAG1,"cam id: "+camid);
-        Log.i(TAG1,"operation : "+operation);
-        Log.i(TAG1,"dynamiclense : "+dynamiclense);
+        Log.i(TAG3,"cam id: "+camid);
+        Log.i(TAG3,"operation : "+operation);
+        Log.i(TAG3,"dynamiclense : "+dynamiclense);
 
         Intent notificationIntent = new Intent(this, MainActivity.class);
         PendingIntent pendingIntent = null;
@@ -255,7 +275,7 @@ public class Camera2Service extends Service {
         else
         {
             pendingIntent = PendingIntent.getActivity
-                    (this, 0, notificationIntent, PendingIntent.FLAG_ONE_SHOT);
+                    (this, 0, notificationIntent, PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE);
         }
 
         Notification notification = new NotificationCompat.Builder(this, MyApp.CHANNEL_ID)
@@ -271,7 +291,7 @@ public class Camera2Service extends Service {
         }
 
         startForeground(1, notification);
-        Log.d(TAG, "onStartCommand flags " + flags + " startId " + startId);
+        Log.d(TAG3, "onStartCommand flags " + flags + " startId " + startId);
         //String cameraId = intent.getStringExtra("cameraId");
         //print details on all cameras
         if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)) {
@@ -283,12 +303,12 @@ public class Camera2Service extends Service {
                     CameraCharacteristics.Key<int[]> scene_modes=cameraCharacteristics.CONTROL_AVAILABLE_SCENE_MODES;
                     int[] sm=cameraCharacteristics.get(scene_modes);
                     Set<String> physicalCameraIds = cameraCharacteristics.getPhysicalCameraIds();
-                    Log.i(TAG1, "logic ID: " + id + " Physics under ID: " + Arrays.toString(physicalCameraIds.toArray()));
-                    Log.i(TAG1, "scene modes : " + Arrays.toString(sm));
+                    Log.i(TAG3, "logic ID: " + id + " Physics under ID: " + Arrays.toString(physicalCameraIds.toArray()));
+                    Log.i(TAG3, "scene modes : " + Arrays.toString(sm));
 
                     final int[] cap = cameraCharacteristics.get(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES);
                     boolean facingBack=cameraCharacteristics.get(CameraCharacteristics.LENS_FACING)== CameraMetadata.LENS_FACING_BACK;
-                    Log.i(TAG1, "facing back?: " + String.valueOf(facingBack));
+                    Log.i(TAG3, "facing back?: " + String.valueOf(facingBack));
                     boolean depthCapable=false;
                     boolean manualFocus=false;
                     for (int capability : cap) {
@@ -297,37 +317,37 @@ public class Camera2Service extends Service {
                         depthCapable=depthCapable || capable;
                         manualFocus=manualFocus||mancapable;
                     }
-                    Log.i(TAG1, "is depth capable ?: " + String.valueOf(depthCapable));
-                    Log.i(TAG1, "manual focus ?: " + String.valueOf(manualFocus));
+                    Log.i(TAG3, "is depth capable ?: " + String.valueOf(depthCapable));
+                    Log.i(TAG3, "manual focus ?: " + String.valueOf(manualFocus));
                     float min_f=cameraCharacteristics.get(CameraCharacteristics.LENS_INFO_MINIMUM_FOCUS_DISTANCE);
-                    Log.i(TAG1, "min focal distance: " + String.valueOf(min_f));
+                    Log.i(TAG3, "min focal distance: " + String.valueOf(min_f));
                     int fcalib=cameraCharacteristics.get(CameraCharacteristics.LENS_INFO_FOCUS_DISTANCE_CALIBRATION);
                     switch(fcalib){
-                        case CameraMetadata.LENS_INFO_FOCUS_DISTANCE_CALIBRATION_UNCALIBRATED: Log.i(TAG1,"focus distance calibration : Uncalibrated");
+                        case CameraMetadata.LENS_INFO_FOCUS_DISTANCE_CALIBRATION_UNCALIBRATED: Log.i(TAG3,"focus distance calibration : Uncalibrated");
                         break;
-                        case CameraMetadata.LENS_INFO_FOCUS_DISTANCE_CALIBRATION_CALIBRATED: Log.i(TAG1,"focus distance calibration : Calibrated");
+                        case CameraMetadata.LENS_INFO_FOCUS_DISTANCE_CALIBRATION_CALIBRATED: Log.i(TAG3,"focus distance calibration : Calibrated");
                         break;
-                        case CameraMetadata.LENS_INFO_FOCUS_DISTANCE_CALIBRATION_APPROXIMATE: Log.i(TAG1,"focus distance calibration : approximately calibrated");
+                        case CameraMetadata.LENS_INFO_FOCUS_DISTANCE_CALIBRATION_APPROXIMATE: Log.i(TAG3,"focus distance calibration : approximately calibrated");
                         break;
                     }
                     if(depthCapable){
                         boolean isDepthExclusive=cameraCharacteristics.get(CameraCharacteristics.DEPTH_DEPTH_IS_EXCLUSIVE);
-                        Log.i(TAG1,"is depth exclusive ? "+String.valueOf(isDepthExclusive));
+                        Log.i(TAG3,"is depth exclusive ? "+String.valueOf(isDepthExclusive));
                     }
                     //Log.i(TAG1,"is multi? "+String.valueOf(cameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_LOGICAL_MULTI_CAMERA));
                     Set<String> pids=cameraCharacteristics.getPhysicalCameraIds();
-                    Log.i(TAG1,"num physical = "+String.valueOf(pids.size()));
-                    Log.i(TAG1,"capabilities: " + Arrays.toString(cap));
+                    Log.i(TAG3,"num physical = "+String.valueOf(pids.size()));
+                    Log.i(TAG3,"capabilities: " + Arrays.toString(cap));
                     SizeF sensorSize = cameraCharacteristics.get(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE);
-                    Log.i(TAG1, "Sensor size: " + sensorSize);
+                    Log.i(TAG3, "Sensor size: " + sensorSize);
                     float[] focalLengths = cameraCharacteristics.get(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS);
-                    Log.i(TAG1,"Focal lengths: " +Arrays.toString(focalLengths));
+                    Log.i(TAG3,"Focal lengths: " +Arrays.toString(focalLengths));
                     if (focalLengths.length > 0) {
                         float focalLength = focalLengths[0];
                         double fov = 2 * Math.atan(sensorSize.getWidth() / (2 * focalLength));
-                        Log.i(TAG1, "Calculated FoV: " + fov + " rad");
+                        Log.i(TAG3, "Calculated FoV: " + fov + " rad");
                     }
-                    Log.i(TAG1, "************************************");
+                    Log.i(TAG3, "************************************");
                 }
             } catch (CameraAccessException e) {
                 e.printStackTrace();
@@ -341,7 +361,7 @@ public class Camera2Service extends Service {
 
     @Override
     public void onCreate() {
-        Log.d(TAG, "onCreate service");
+        Log.d(TAG3, "onCreate service");
         super.onCreate();
     }
 

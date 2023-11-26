@@ -7,6 +7,7 @@
     tools:context=".MainActivity">
 
     <TextView
+        android:id="@+id/myTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="camstrm"
@@ -14,5 +15,13 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Use this IP in the python code"
+        tools:layout_editor_absoluteX="113dp"
+        tools:layout_editor_absoluteY="315dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
