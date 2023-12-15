@@ -261,7 +261,7 @@ public class Camera2Service extends Service {
         operation = intent.getStringExtra("operation");
         camid = intent.getStringExtra("camid");
         dynamiclense = intent.getStringExtra("dynamiclense");
-        Log.d(TAG3,"here in start,,,,");
+        Log.i(TAG3,"Arguments given to me");
         Log.i(TAG3,"cam id: "+camid);
         Log.i(TAG3,"operation : "+operation);
         Log.i(TAG3,"dynamiclense : "+dynamiclense);
@@ -294,6 +294,7 @@ public class Camera2Service extends Service {
         Log.d(TAG3, "onStartCommand flags " + flags + " startId " + startId);
         //String cameraId = intent.getStringExtra("cameraId");
         //print details on all cameras
+        Log.i(TAG3,"Camera Details....");
         if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)) {
             CameraManager manager = (CameraManager) getSystemService(CAMERA_SERVICE);
             try {

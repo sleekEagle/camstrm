@@ -1,10 +1,10 @@
 # camstrm
-Stream camera feed of Android device to computer via ADB
+Stream camera feed of Android device to computer via WiFi
 
 ## what does this do 
-this repo contain and Android app and a python3 script that runs on a computer.
-Android app access the camera of the Android device and sends image frames over TCP connection over ADB.
-python3 script access these images from the TCP port and display them and stores it as a video at the same time.
+this repo contains an Android app and a python3 script that runs on a computer.
+Android app access the camera of the Android device and sends image frames over WiFi using TCP.
+python3 script access these images from the TCP port and/or display them and/or stores it as a video/images at the same time.
 
 ## Dependencies
 1. Pillow 
@@ -14,9 +14,8 @@ python3 script access these images from the TCP port and display them and stores
 
 ## how to use
 1. git clone https://github.com/sleekEagle/camstrm.git
-2. turn on the Android device
-3. turn on the camstrm app on the phone/android device
-4. use the IP address shown in the mobile phone on the python code 
+2. turn on the camstrm app on the android device
+3. use the IP address shown in the mobile phone on the python code (as the argument --ip)
 
 ## Options 
 Help 
@@ -46,49 +45,46 @@ To run in video streaming mode, with camera 0, save the video as an avi video fi
 ```
 python write_vid.py --operation 0 --camera 0 --savetype 0 --savedir /path/to/save/video/file/
 ```
-To quit : Press the key 'q' on the image display window.
+To quit : Press the key 'q' on the image display window. 
+or
+CRTL + c on the terminal
 
 
-# tips
-you can use scrcpy program from https://github.com/Genymobile/scrcpy
-to mirror screen of an Android device to the computer, so you do not have to look at the 
-device screen while you are working. 
- 
-## Running apps via ADB
-start the adb shell by 
-```
-adb shell
-```
 
-start the app by 
+## Getting details about the cameras available in this device
+1. Connect the Android device to ADB. This can either be over USB or WiFi (turn on WiFi debugging and pair, etc.)
+2. Monitor logcat with the TAG "cameradetails"
+Use command 
 ```
-am start -n com.example.camstrm/com.example.camstrm.MainActivity
-``` 
-
-kill the app by 
+adb logcat | grep "cameradetails"
 ```
-am force-stop com.example.camstrm
+For example, Google Pixel 7 Pro gives us the following details:
 ```
-
-
-## Running ADB via Wi-Fi instead of through USB cable
-on the computer type:
+Camera Details....
+logic ID: 0 Physics under ID: [2, 3, 4, 5, 6]
+scene modes : [0, 1]
+facing back?: true
+is depth capable ?: false
+manual focus ?: true
+min focal distance: 9.523809
+focus distance calibration : approximately calibrated
+num physical = 5
+capabilities: [0, 1, 5, 2, 6, 19, 3, 9, 11, 18]
+Sensor size: 9.792x7.3728
+Focal lengths: [6.81]
+Calculated FoV: 1.24665275985497 rad
+************************************
+logic ID: 1 Physics under ID: [7, 8]
+scene modes : [0, 1]
+facing back?: false
+is depth capable ?: false
+manual focus ?: true
+min focal distance: 0.0
+focus distance calibration : approximately calibrated
+num physical = 2
+capabilities: [0, 1, 5, 2, 6, 19, 3, 11, 18]
+Sensor size: 4.1968x2.98656
+Focal lengths: [2.74]
+Calculated FoV: 1.3071230616267635 rad
+************************************
 ```
-adb tcpip 5555
-adb shell ip addr show wlan0
-```
-and copy the IP address after the "inet" until the "/". 
-
-on the computer type:
-```
-adb connect ip-address-of-device:5555
-```
-
-You can disconnect the USB cable now
-use 
-```
-adb devices
-```
-to check if the device is still attached. 
-
-
