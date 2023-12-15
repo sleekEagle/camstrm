@@ -1,4 +1,6 @@
 # camstrm
+![icon](./camstrm.gif)
+
 Stream camera feed of Android device to computer via WiFi
 
 ## what does this do 
