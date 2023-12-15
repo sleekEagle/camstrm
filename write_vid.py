@@ -186,7 +186,10 @@ def read_imgs(TCP_PORT):
                 total_imgs+=1 
                 RGB_img = cv2.cvtColor(image[0], cv2.COLOR_BGR2RGB)
                 if(args.display==1):
-                    cv2.imshow('frame',RGB_img)
+                    desired_width = 400
+                    desired_height = 300
+                    resized_image = cv2.resize(RGB_img, (desired_width, desired_height))
+                    cv2.imshow('frame',resized_image)
                 if(args.savetype==0):  
                     video.write(RGB_img)
                     print("wrote video frame")
@@ -213,9 +216,9 @@ if __name__ == "__main__":
     parser.add_argument('--display', type=int ,default=0, help='0: Do not display the image 1: Display the image, default=0')
     parser.add_argument('--nimgs', type=int ,default=-1, help='number of images to capture. -1 to capture until manually quit. Default=-1')
     parser.add_argument('--dyn', type=int ,default=1, help='Shoud the camera not wait till the lese is stationary (a.k.a dynamic lense) ? (Android property CameraMetadata.LENS_STATE_STATIONARY),Default=1')
-    parser.add_argument('--savetype', type=int ,default=0, help='0: save as avi video file 1: save as images with timestamp and focal length 2: Do not save anything, Default=2')
+    parser.add_argument('--savetype', type=int ,default=2, help='0: save as avi video file 1: save as images with timestamp and focal length 2: Do not save anything, Default=2')
     parser.add_argument('--savedir', type=str ,default='C:\\Users\\lahir\\data\\CPR_experiment\\test\\smartglass\\', help='save directory for the video. In windows add two \s in the path')
-    parser.add_argument('--ip', type=str ,default='172.27.144.161',
+    parser.add_argument('--ip', type=str ,default='192.168.0.100',
                         help='IP address of the Android device')
     args = parser.parse_args()
 

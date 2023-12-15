@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.TextView;
 
 import java.net.InetAddress;
@@ -23,7 +24,9 @@ public class MainActivity extends AppCompatActivity {
     private static final int CAMERA_REQUEST_CODE = 10;
     protected static final String TAG = "cam_stream";
     protected static final String TAG1 = "cam_stream1";
+    protected static final String DEBIG_TAG = "debug";
     private TextView myTextView;
+    private Server server;
 
 
     @Override
@@ -31,19 +34,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         myTextView = (TextView)findViewById(R.id.myTextView);
-        //get WiFi address
-        String localIpAddress = getLocalIpAddress();
-        updateText(localIpAddress);
-
         getWindow(). addFlags (WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         Log.i(TAG1,"in main");
 
-//        String operation = getIntent().getStringExtra("operation");
-//        String camid = getIntent().getStringExtra("camid");
-//        String dynamiclense = getIntent().getStringExtra("dynamiclense");
-
-        // start server that sends frames to computer over ADB
-        Server server=new Server(new Server.OptionsCallback(){
+        //get WiFi address
+        String localIpAddress = getLocalIpAddress();
+        updateText(localIpAddress);
+        server=new Server(new Server.OptionsCallback(){
             @Override
             public void onTaskComplete(int operation,int camera) {
                 // Handle the result obtained from the thread here
@@ -54,7 +51,16 @@ public class MainActivity extends AppCompatActivity {
         });
         server.start();
 
+
+//        String operation = getIntent().getStringExtra("operation");
+//        String camid = getIntent().getStringExtra("camid");
+//        String dynamiclense = getIntent().getStringExtra("dynamiclense");
+
+        // start server that sends frames to computer over ADB
+
     }
+
+
 
     private void start_camera(int operation,int camid){
         //check of the user has given permission for this app to use camera

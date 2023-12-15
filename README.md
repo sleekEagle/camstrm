@@ -4,7 +4,7 @@ Stream camera feed of Android device to computer via ADB
 ## what does this do 
 this repo contain and Android app and a python3 script that runs on a computer.
 Android app access the camera of the Android device and sends image frames over TCP connection over ADB.
-pytho3 script access these images from the TCP port and display them and stores it as a video at the same time.
+python3 script access these images from the TCP port and display them and stores it as a video at the same time.
 
 ## Dependencies
 1. Pillow 

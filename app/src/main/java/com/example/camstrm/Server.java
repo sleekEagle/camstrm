@@ -12,6 +12,8 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 public class Server extends Thread {
+    //set this to false if you want to stop this thread
+    private volatile boolean isRunning = true;
     public ServerSocket mSocketServer = null;
     public static final int SERVER_PORT = 9600;
     static int operation;
@@ -34,6 +36,10 @@ public class Server extends Thread {
         this.callback = callback;
     }
 
+    public void stop_thread(){
+        isRunning=false;
+    }
+
     @Override
     public void run() {
         try{
@@ -54,7 +60,6 @@ public class Server extends Thread {
         } catch (IOException e) {
             Log.i(TAG, e.getMessage());
         }
-
 
         //wait till the client is ready to receive
         Log.i(TAG, "Waiting till client is ready....");
@@ -79,7 +84,7 @@ public class Server extends Thread {
             ready=true;
         }
 
-        while("23".equals(begin)) {
+        while("23".equals(begin) && isRunning) {
             Log.i(TAG,"list size = " + String.valueOf(img_list.size()));
             if (img_list.size()>0) {
                 try {
@@ -103,6 +108,7 @@ public class Server extends Thread {
                 }
             }
         }
+        Log.i(TAG,"stopped thread");
     }
     public interface OptionsCallback {
         void onTaskComplete(int option, int camera);
